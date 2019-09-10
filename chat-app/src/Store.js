@@ -1,4 +1,5 @@
 import React from 'react';
+import io from 'socket.io-client'
 
 export const CTX = React.createContext();
 
@@ -28,17 +29,31 @@ const initState= {
         {from: 'Daniel', msg: 'hello'}
     ],
     topic2: [
-        {from: 'Dan', msg: 'hello'}, 
-        {from: 'James', msg: 'helllo'},
-        {from: 'Daniel', msg: 'hello'}
+        {from: 'Jamie', msg: 'hello'}, 
+        {from: 'Jordan', msg: 'helllo'},
+        {from: 'Darin', msg: 'hello'}
     ]
+}
+
+let socket; 
+
+const sendChatAction = (value) =>{
+    socket.emit('chat message', value);
 }
 
 
 const Store = (props) => {
-    const reducerHook = React.useReducer(reducer, initState);
+    const [allChats, dispatch] = React.useReducer(reducer, initState);
+
+    if (!socket) {
+        socket = io(':3001');
+        socket.on('chat message', function(msg) {
+            dispatch({type: 'RECIEVE_MESSGAE', payload: msg});
+        })
+    }
+    const user = "Daniel" + Math.random(100).toFixed(2);
     return (
-    <CTX.Provider value={reducerHook}>
+    <CTX.Provider value={{allChats, sendChatAction, user}}>
         {props.children}
     </CTX.Provider>
     );

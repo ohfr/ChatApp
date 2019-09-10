@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import {CTX} from './Store';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -39,21 +40,29 @@ const useStyles = makeStyles(theme => ({
 
 const Dashboard = (props) => {
     const classes=useStyles();
+
+    //CTX store
+    const [allChats] = React.useContext(CTX);
+    const topics = Object.keys(allChats);
+
+    //local state
+    const [activeTopic, setActiveTopic] = useState(topics[0]);
+    const [text, setText] = useState('');
     return (
         <div>
             <Paper className={classes.root}>
-                <Typography variant="h5" component="h3">
+                <Typography variant="h4" component="h4">
                     Chat App
                 </Typography>
-                <Typography component="p">
-                   Topic Placeholder
+                <Typography variant="h5" component="h5">
+                  {activeTopic}
                 </Typography>
                 <div className={classes.flex}>
                     <div className={classes.topicsWindow}>
-                        {['topic'].map((topic, index) => {
+                        {topics.map((topic, index) => {
                             return (
                             <List>
-                                <ListItem button key={index}>
+                                <ListItem button key={index} onClick={(e) => setActiveTopic(e.target.innerText)}>
                                     <ListItemText primary={topic} />
                                 </ListItem>
                             </List>
@@ -62,11 +71,11 @@ const Dashboard = (props) => {
                     </div>
                     <div className={classes.chatWindow}>
                         {
-                            [{from: 'user', msg: 'hello'}].map((chat, index) => {
+                            allChats[activeTopic].map((chat, index) => {
                                 return (
                                     <div className={classes.flex} key={index}>
                                         <Chip label={chat.from} className={classes.chip} />
-                                        <Typography variant="p">{chat.msg}</Typography>
+                                        <Typography variant="body1" gutterBottom>{chat.msg}</Typography>
                                     </div>
                                 )
                             })
@@ -77,8 +86,8 @@ const Dashboard = (props) => {
                     <TextField
                         label="Send a Chat"
                         className={classes.chatBox}
-                        // value={values.name}
-                        // onChange={handleChange('name')} 
+                        value={text}
+                        onChange={(e) => setText(e.target.value)} 
                     />
                     <Button variant="contained" color="primary">
                         Send
